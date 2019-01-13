@@ -6,6 +6,10 @@ var recTal;
 var mainBoxSide = 600;
 var markerW = 0;
 var markerH = 50;
+var attempts = 0;
+var attemptsBox;
+var score = 0;
+var scoreBox;
 //tal features
 var talName;
 var title;
@@ -138,15 +142,20 @@ function setup() {
   showCursor.attribute("style", "color:rgba(0, 0, 0, 0.4);");
   showTal.attribute("disabled", "true");
   showTal.attribute("style", "color:rgba(0, 0, 0, 0.4);");
+  scoreBox = new CreateScoreBox(markerH + 200);
+  attemptsBox = new CreateScoreBox(scoreBox.x + scoreBox.w + navBoxX/2);
   charger = new CreateCharger();
   cursor = new CreateCursor();
-navBox = new CreateNavigationBox();
+  navBox = new CreateNavigationBox();
 }
 
 function draw() {
   background(254, 249, 231);
   fill(backColor);
   rect(markerW, markerH, mainBoxSide, height);
+
+  scoreBox.display(score);
+  attemptsBox.display(attempts);
 
   stroke(0, 50);
   strokeWeight(1);
@@ -416,6 +425,26 @@ function StrokeCircle (matra, vibhag, circleType, bol, avart) {
     if (d < this.radius) {
       soundDic[this.bol.toLowerCase()].play();
     }
+  }
+}
+
+function CreateScoreBox (x) {
+  this.x = x;
+  this.y = navBoxX;
+  this.w = 50;
+  this.h = 20;
+  this.display = function(txt) {
+    this.score =
+    fill(255);
+    stroke(150);
+    strokeWeight(1);
+    rect(this.x, this.y, this.w, this.h);
+    textAlign(RIGHT, TOP);
+    fill(0);
+    textSize(this.h * 0.75);
+    noStroke();
+    textStyle(NORMAL);
+    text(txt, this.x+this.w-3, this.y+this.h * 0.2);
   }
 }
 
