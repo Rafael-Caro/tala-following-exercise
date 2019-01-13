@@ -1,2 +1,2 @@
 # tala-following-exercise
-Computational exercise for tala-following
+Computational exercise for tāl following
