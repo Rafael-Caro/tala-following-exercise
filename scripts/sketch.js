@@ -181,7 +181,7 @@ function draw () {
 
   if (!paused) {
     currentTime = track.currentTime();
-    findClosestSam();
+    updateSam();
   }
 
   push();
@@ -498,12 +498,7 @@ function CreateNavigationBox () {
     var yZ = navBoxY+navBoxH;
     if (mouseX > this.x1 && mouseX < this.x2 && mouseY > yA && mouseY < yZ) {
       jump = map(mouseX, this.x1, this.x2, 0, trackDuration);
-      if (paused) {
-        currentTime = jump;
-      } else {
-        track.jump(jump);
-        jump = undefined;
-      }
+      findClosestSam();
     }
   }
 }
@@ -774,7 +769,7 @@ function loading () {
   button.attribute("disabled", "");
 }
 
-function findClosestSam () {
+function updateSam () {
   if (currentTime < allSam[0]) {
     samIndex = 0;
     goalIndex = 0;
@@ -790,10 +785,40 @@ function findClosestSam () {
   }
 }
 
+function findClosestSam () {
+  print(niceTime(jump));
+  if (jump < allSam[0]) {
+    samIndex = 0;
+    goalIndex = 0;
+  } else if (jump > allSam[allSam.length-1]) {
+    samIndex = allSam.length-1;
+    goalIndex = allSam.length-1;
+  } else {
+    var test = 0;
+    while (jump > allSam[test+1]) {
+      test++;
+    }
+    print(test);
+    samIndex = test;
+    print(samIndex);
+    if ((jump-allSam[samIndex]) > (allSam[samIndex+1]-jump)) {
+      goalIndex = samIndex+1;
+    } else {
+      goalIndex = samIndex;
+    }
+  }
+  if (paused) {
+    currentTime = jump;
+  } else {
+    track.jump(jump);
+    jump = undefined;
+  }
+}
+
 function grader () {
   var dist = abs(currentTime - allSam[goalIndex]);
   print(currentTime.toFixed(2), allSam[goalIndex].toFixed(2), dist.toFixed(2));
-  if (dist <= 0.5) {
+  if (dist <= 0.1) {
     score++;
   }
 }
@@ -810,7 +835,7 @@ function mousePressed() {
 }
 
 function keyTyped() {
-  if (!paused && key === " ") {
+  if (!paused && key.toLowerCase() === "s") {
     attempts++;
     grader();
   }
