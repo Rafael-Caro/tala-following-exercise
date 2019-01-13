@@ -10,6 +10,9 @@ var attempts = 0;
 var attemptsBox;
 var score = 0;
 var scoreBox;
+var samIndex = 0;
+var goalIndex = 0;
+var allSam = [];
 //tal features
 var talName;
 var title;
@@ -78,7 +81,7 @@ function preload () {
   clap = loadImage("files/clap.svg");
 }
 
-function setup() {
+function setup () {
   var canvas = createCanvas(markerW+mainBoxSide, markerH+mainBoxSide);
   var div = select("#sketch-holder");
   div.style("width: " + width + "px; margin: 10px auto; position: relative;");
@@ -149,7 +152,7 @@ function setup() {
   navBox = new CreateNavigationBox();
 }
 
-function draw() {
+function draw () {
   background(254, 249, 231);
   fill(backColor);
   rect(markerW, markerH, mainBoxSide, height);
@@ -178,6 +181,7 @@ function draw() {
 
   if (!paused) {
     currentTime = track.currentTime();
+    findClosestSam();
   }
 
   push();
@@ -256,6 +260,7 @@ function draw() {
   noStroke();
   fill(50);
   text(mpmTxt, markerW+navBoxX, navBoxY-navBoxX/2);
+  text(str(samIndex) + ", " + str(goalIndex), width-50, 20);
 
   // position = updateCursor(position);
 
@@ -279,6 +284,8 @@ function start () {
   talName = undefined;
   charger.angle = undefined;
   mpmTxt = undefined;
+  allSam = [];
+  samIndex = 0;
   var index = select.value();
   recTal = recordingsInfo[recordingsList[index]];
   trackDuration = recTal.info.duration;
@@ -291,6 +298,12 @@ function start () {
   navCursor = new CreateNavCursor();
   for (var i = 0; i < recTal.info.talList.length; i++) {
     var tal = recTal.info.talList[i];
+    for (var j = 0; j < recTal[tal].sam.length; j++) {
+      var samToAdd = recTal[tal].sam[j];
+      if (!allSam.includes(samToAdd)) {
+        allSam.push(samToAdd);
+      }
+    }
     var talBox = new CreateTalBox(tal, recTal[tal].start, recTal[tal].end);
     talBoxes.push(talBox);
     var talCircle = new CreateTal (tal);
@@ -717,7 +730,7 @@ function CreateCharger () {
   }
 }
 
-function player() {
+function player () {
   if (loaded) {
     if (paused) {
       paused = false;
@@ -742,7 +755,7 @@ function player() {
   }
 }
 
-function soundLoaded() {
+function soundLoaded () {
   button.html("¡Comienza!");
   button.removeAttribute("disabled");
   loaded = true;
@@ -756,9 +769,33 @@ function soundLoaded() {
   print("Track loaded in " + (endLoading-initLoading)/1000 + " seconds");
 }
 
-function loading() {
+function loading () {
   button.html("Cargando...");
   button.attribute("disabled", "");
+}
+
+function findClosestSam () {
+  if (currentTime < allSam[0]) {
+    samIndex = 0;
+    goalIndex = 0;
+  } else if (currentTime > allSam[allSam.length-1]) {
+    samIndex = allSam.length-1;
+    goalIndex = allSam.length-1;
+  } else if (currentTime > allSam[samIndex] && currentTime < allSam[samIndex+1]) {
+    if ((currentTime-allSam[samIndex]) > (allSam[samIndex+1]-currentTime)) {
+      goalIndex = samIndex+1;
+    }
+  } else {
+    samIndex++;
+  }
+}
+
+function grader () {
+  var dist = abs(currentTime - allSam[goalIndex]);
+  print(currentTime.toFixed(2), allSam[goalIndex].toFixed(2), dist.toFixed(2));
+  if (dist <= 0.5) {
+    score++;
+  }
 }
 
 function mousePressed() {
@@ -769,6 +806,13 @@ function mousePressed() {
   // }
   if (loaded) {
     navBox.clicked();
+  }
+}
+
+function keyTyped() {
+  if (!paused && key === " ") {
+    attempts++;
+    grader();
   }
 }
 
