@@ -3,6 +3,8 @@ var talInfo;
 var recordingsInfo;
 var recordingsList;
 var recTal;
+var mainBoxSide = 600;
+var markerW = 150;
 //tal features
 var talName;
 var title;
@@ -69,7 +71,7 @@ function preload () {
 }
 
 function setup() {
-  var canvas = createCanvas(600, 600);
+  var canvas = createCanvas(markerW+mainBoxSide, mainBoxSide);
   var div = select("#sketch-holder");
   div.style("width: " + width + "px; margin: 10px auto; position: relative;");
   // var divElem = new p5.Element(input.elt);
@@ -79,7 +81,7 @@ function setup() {
   angleMode(DEGREES);
   imageMode(CENTER);
   //style
-  radiusBig = width * (0.3);
+  radiusBig = height * (0.3);
   navBoxY = height-navBoxH-navBoxX;
   recordingsList = recordingsInfo["recordingsList"];
   backColor = color(185, 239, 162);
@@ -95,7 +97,7 @@ function setup() {
     .parent("sketch-holder")
     .attribute("disabled", "true");
   select = createSelect()
-    .size(100, 20)
+    .size(markerW-navBoxX*2, 20)
     .position(navBoxX, navBoxX)
     .changed(start)
     .parent("sketch-holder");
@@ -114,11 +116,13 @@ navBox = new CreateNavigationBox();
 }
 
 function draw() {
-  background(backColor);
+  background(254, 249, 231);
+  fill(backColor);
+  rect(markerW, 0, mainBoxSide, height);
 
   stroke(0, 50);
   strokeWeight(1);
-  line(navBoxX*2, navBoxX*3+27, width-navBoxX*2, navBoxX*3+27);
+  line(markerW+navBoxX*2, navBoxX*3+27, width-navBoxX*2, navBoxX*3+27);
 
   textAlign(CENTER, TOP);
   textStyle(NORMAL);
@@ -127,20 +131,20 @@ function draw() {
   stroke(0);
   mainColor.setAlpha(255);
   fill(mainColor);
-  text(title, width/2, navBoxX*3);
+  text(title, markerW+mainBoxSide/2, navBoxX*3);
   textAlign(CENTER, CENTER);
   stroke(0, 150);
   strokeWeight(1);
   textSize(20);
   fill(0, 150);
-  text(artist, width/2, navBoxX*3+45);
+  text(artist, markerW+mainBoxSide/2, navBoxX*3+45);
 
   if (!paused) {
     currentTime = track.currentTime();
   }
 
   push();
-  translate(width/2, height/2);
+  translate(markerW+mainBoxSide/2, height/2);
   rotate(-90);
 
   // noStroke();
@@ -203,14 +207,14 @@ function draw() {
   mainColor.setAlpha(255);
   fill(mainColor);
   textStyle(NORMAL);
-  text(talName, width/2, height/2);
+  text(talName, markerW+mainBoxSide/2, height/2);
 
   textAlign(LEFT, BOTTOM);
   textSize(12);
   textStyle(NORMAL);
   noStroke();
   fill(50);
-  text(mpmTxt, navBoxX, navBoxY-navBoxX/2);
+  text(mpmTxt, markerW+navBoxX, navBoxY-navBoxX/2);
 
   // position = updateCursor(position);
 
@@ -374,17 +378,19 @@ function StrokeCircle (matra, vibhag, circleType, bol, avart) {
 }
 
 function CreateNavigationBox () {
-  this.w = width - navBoxX * 2;
+  this.x1 = markerW+navBoxX;
+  this.x2 = width-navBoxX;
+  this.w = this.x2 - this.x1;
 
   this.displayBack = function () {
     fill(0, 50);
     noStroke();
-    rect(navBoxX, navBoxY, this.w, navBoxH);
+    rect(this.x1, navBoxY, this.w, navBoxH);
     if (recTal != undefined) {
       for (var i = 0; i < recTal.info.talList.length; i++) {
         var tal = recTal[recTal.info.talList[i]];
         for (var j = 0; j < tal.sam.length; j++) {
-          var samX = map(tal.sam[j], 0, trackDuration, navBoxX+navCursorW/2, navBoxX+this.w-navCursorW/2);
+          var samX = map(tal.sam[j], 0, trackDuration, this.x1+navCursorW/2, this.x2-navCursorW/2);
           stroke(255);
           strokeWeight(1);
           line(samX, navBoxY, samX, navBoxY+navBoxH);
@@ -396,20 +402,18 @@ function CreateNavigationBox () {
   this.displayFront = function () {
     stroke(0, 150);
     strokeWeight(2);
-    line(navBoxX+1, navBoxY, navBoxX+this.w, navBoxY);
-    line(navBoxX+this.w, navBoxY, navBoxX+this.w, navBoxY+navBoxH);
+    line(this.x1+1, navBoxY, this.x2, navBoxY);
+    line(this.x2, navBoxY, this.x2, navBoxY+navBoxH);
     strokeWeight(1);
-    line(navBoxX, navBoxY, navBoxX, navBoxY+navBoxH);
-    line(navBoxX, navBoxY+navBoxH, navBoxX+this.w, navBoxY+navBoxH);
+    line(this.x1, navBoxY, this.x1, navBoxY+navBoxH);
+    line(this.x1, navBoxY+navBoxH, this.x2, navBoxY+navBoxH);
   }
 
   this.clicked = function () {
-    var xA = navBoxX;
-    var xZ = navBoxX+this.w;
     var yA = navBoxY;
     var yZ = navBoxY+navBoxH;
-    if (mouseX > xA && mouseX < xZ && mouseY > yA && mouseY < yZ) {
-      jump = map(mouseX, xA, xZ, 0, trackDuration);
+    if (mouseX > this.x1 && mouseX < this.x2 && mouseY > yA && mouseY < yZ) {
+      jump = map(mouseX, this.x1, this.x2, 0, trackDuration);
       if (paused) {
         currentTime = jump;
       } else {
@@ -423,7 +427,7 @@ function CreateNavigationBox () {
 function CreateNavCursor () {
   this.x = navBoxX + navCursorW/2;
   this.update = function () {
-    this.x = map(currentTime, 0, trackDuration, navBoxX + navCursorW/2, navBoxX + navBox.w - navCursorW/2);
+    this.x = map(currentTime, 0, trackDuration, navBox.x1+navCursorW/2, navBox.x2-navCursorW/2);
     var noTal = true;
     for (var i = 0; i < talBoxes.length; i++) {
       var tB = talBoxes[i];
@@ -440,7 +444,7 @@ function CreateNavCursor () {
       currentTal = undefined;
       talName = undefined;
     }
-    if (navBoxX + navBox.w - navCursorW/2 - this.x < 0.005) {
+    if (navBox.x2-navCursorW/2 - this.x < 0.005) {
       button.html("¡Comienza!");
       track.stop();
       paused = true;
@@ -457,8 +461,8 @@ function CreateNavCursor () {
 function CreateTalBox (name, start, end) {
   this.name = name
   this.h = 20;
-  this.x1 = map(start, 0, trackDuration, navBoxX+navCursorW/2, navBoxX+navBox.w-navCursorW/2);
-  this.x2 = map(end, 0, trackDuration, navBoxX+navCursorW/2, navBoxX+navBox.w-navCursorW/2);
+  this.x1 = map(start, 0, trackDuration, navBox.x1+navCursorW/2, navBox.x2-navCursorW/2);
+  this.x2 = map(end, 0, trackDuration, navBox.x1+navCursorW/2, navBox.x2-navCursorW/2);
   this.w = this.x2-this.x1;
   this.boxCol = color(255, 100);
   this.txtCol = color(100);
@@ -620,7 +624,7 @@ function CreateClock () {
     textStyle(NORMAL);
     noStroke();
     fill(50);
-    text(this.clock, width/2, navBoxY-navBoxX/2);
+    text(this.clock, markerW+mainBoxSide/2, navBoxY-navBoxX/2);
   }
 }
 
