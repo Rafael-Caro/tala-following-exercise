@@ -45,6 +45,9 @@ var paused = true;
 //html interaction
 var select;
 var button;//sounds
+var showTheka;
+var showCursor;
+var showTal;
 var loaded = false;
 var navBoxX = 10;
 var navBoxH = 60;
@@ -117,6 +120,24 @@ function setup() {
   for (var i = 0; i < recordingsList.length; i++) {
     select.option(recordingsInfo[recordingsList[i]].info.option, i);
   }
+  showTheka = createCheckbox('theka', true)
+    .position(markerW+navBoxX, markerH+mainBoxSide*0.2)
+    .parent("sketch-holder");
+  showCursor = createCheckbox('cursor', true)
+    .position(markerW+navBoxX, showTheka.position()["y"]+showTheka.height+navBoxX/2)
+    .parent("sketch-holder");
+  showTal = createCheckbox('tāl', true)
+    .position(markerW+navBoxX, showCursor.position()["y"]+showCursor.height+navBoxX/2)
+    .changed(function() {
+      showTheka.checked(showTal.checked());
+    })
+    .parent("sketch-holder");
+  showTheka.attribute("disabled", "true");
+  showTheka.attribute("style", "color:rgba(0, 0, 0, 0.4);");
+  showCursor.attribute("disabled", "true");
+  showCursor.attribute("style", "color:rgba(0, 0, 0, 0.4);");
+  showTal.attribute("disabled", "true");
+  showTal.attribute("style", "color:rgba(0, 0, 0, 0.4);");
   charger = new CreateCharger();
   cursor = new CreateCursor();
 navBox = new CreateNavigationBox();
@@ -162,7 +183,9 @@ function draw() {
 
   if (loaded) {
     shade.update();
-    shade.display();
+    if (showCursor.checked()) {
+      shade.display();
+    }
 
     noFill();
     strokeWeight(2);
@@ -170,7 +193,7 @@ function draw() {
     stroke(mainColor);
     ellipse(0, 0, radiusBig, radiusBig);
     //draw circle per bol
-    if (currentTal != undefined) {
+    if (currentTal != undefined && showTal.checked()) {
       var talToDraw = talSet[currentTal];
       for (var i = 0; i < talToDraw.strokeCircles.length; i++) {
         talToDraw.strokeCircles[i].display();
@@ -181,7 +204,9 @@ function draw() {
     }
 
     cursor.update();
-    cursor.display();
+    if (showCursor.checked()) {
+      cursor.display();
+    }
   } else {
     charger.update();
     charger.display();
@@ -265,6 +290,12 @@ function start () {
   currentAvart = new CreateCurrentAvart();
   shade = new CreateShade();
   clock = new CreateClock();
+  showTheka.attribute("disabled", "true");
+  showTheka.attribute("style", "color:rgba(0, 0, 0, 0.4);");
+  showCursor.attribute("disabled", "true");
+  showCursor.attribute("style", "color:rgba(0, 0, 0, 0.4);");
+  showTal.attribute("disabled", "true");
+  showTal.attribute("style", "color:rgba(0, 0, 0, 0.4);");
   button.html("Carga el audio");
   button.removeAttribute("disabled");
 }
@@ -366,13 +397,15 @@ function StrokeCircle (matra, vibhag, circleType, bol, avart) {
     fill(this.col);
     ellipse(0, 0, this.radius, this.radius);
 
-    textAlign(CENTER, CENTER);
-    noStroke();
-    fill(0);
-    textSize(this.radius * 0.75);
-    textStyle(this.txtStyle);
-    rotate(90);
-    text(this.bol, 0, 0);
+    if (showTheka.checked()) {
+      textAlign(CENTER, CENTER);
+      noStroke();
+      fill(0);
+      textSize(this.radius * 0.75);
+      textStyle(this.txtStyle);
+      rotate(90);
+      text(this.bol, 0, 0);
+    }
     pop();
   }
 
@@ -684,6 +717,12 @@ function soundLoaded() {
   button.html("¡Comienza!");
   button.removeAttribute("disabled");
   loaded = true;
+  showTheka.removeAttribute("disabled");
+  showTheka.attribute("style", "color:rgba(0, 0, 0, 0.6);");
+  showCursor.removeAttribute("disabled");
+  showCursor.attribute("style", "color:rgba(0, 0, 0, 0.6);");
+  showTal.removeAttribute("disabled");
+  showTal.attribute("style", "color:rgba(0, 0, 0, 0.6);");
   var endLoading = millis();
   print("Track loaded in " + (endLoading-initLoading)/1000 + " seconds");
 }
