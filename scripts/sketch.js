@@ -4,7 +4,8 @@ var recordingsInfo;
 var recordingsList;
 var recTal;
 var mainBoxSide = 600;
-var markerW = 150;
+var markerW = 0;
+var markerH = 50;
 //tal features
 var talName;
 var title;
@@ -16,7 +17,7 @@ var trackFile;
 var talSet = {};
 var currentTal;
 var currentAvart;
-var currentTime;
+var currentTime = 0;
 var charger;
 var clock;
 var mpmTxt;
@@ -71,7 +72,7 @@ function preload () {
 }
 
 function setup() {
-  var canvas = createCanvas(markerW+mainBoxSide, mainBoxSide);
+  var canvas = createCanvas(markerW+mainBoxSide, markerH+mainBoxSide);
   var div = select("#sketch-holder");
   div.style("width: " + width + "px; margin: 10px auto; position: relative;");
   // var divElem = new p5.Element(input.elt);
@@ -81,7 +82,7 @@ function setup() {
   angleMode(DEGREES);
   imageMode(CENTER);
   //style
-  radiusBig = height * (0.3);
+  radiusBig = mainBoxSide * (0.3);
   navBoxY = height-navBoxH-navBoxX;
   recordingsList = recordingsInfo["recordingsList"];
   backColor = color(185, 239, 162);
@@ -89,15 +90,21 @@ function setup() {
   matraColor = color(249, 175, 120);
   //html interaction
   infoLink = select("#info-link");
-  infoLink.position(width-60, navBoxX*3+37);
+  infoLink.position(width-60, markerH+navBoxX*3+37);
   button = createButton("Carga el audio")
     .size(120, 25)
-    .position(width-120-navBoxX, navBoxY - navBoxX/2 - 25)
+    .position(width-120-navBoxX, navBoxY-navBoxX/2-25)
     .mousePressed(player)
     .parent("sketch-holder")
     .attribute("disabled", "true");
+  var selectW;
+  if (markerW > 100) {
+    selectW = markerW-navBoxX*2;
+  } else {
+    selectW = 100;
+  }
   select = createSelect()
-    .size(markerW-navBoxX*2, 20)
+    .size(selectW, 20)
     .position(navBoxX, navBoxX)
     .changed(start)
     .parent("sketch-holder");
@@ -118,11 +125,11 @@ navBox = new CreateNavigationBox();
 function draw() {
   background(254, 249, 231);
   fill(backColor);
-  rect(markerW, 0, mainBoxSide, height);
+  rect(markerW, markerH, mainBoxSide, height);
 
   stroke(0, 50);
   strokeWeight(1);
-  line(markerW+navBoxX*2, navBoxX*3+27, width-navBoxX*2, navBoxX*3+27);
+  line(markerW+navBoxX*2, markerH+navBoxX*3+27, width-navBoxX*2, markerH+navBoxX*3+27);
 
   textAlign(CENTER, TOP);
   textStyle(NORMAL);
@@ -131,20 +138,20 @@ function draw() {
   stroke(0);
   mainColor.setAlpha(255);
   fill(mainColor);
-  text(title, markerW+mainBoxSide/2, navBoxX*3);
+  text(title, markerW+mainBoxSide/2, markerH+navBoxX*3);
   textAlign(CENTER, CENTER);
   stroke(0, 150);
   strokeWeight(1);
   textSize(20);
   fill(0, 150);
-  text(artist, markerW+mainBoxSide/2, navBoxX*3+45);
+  text(artist, markerW+mainBoxSide/2, markerH+navBoxX*3+45);
 
   if (!paused) {
     currentTime = track.currentTime();
   }
 
   push();
-  translate(markerW+mainBoxSide/2, height/2);
+  translate(markerW+mainBoxSide/2, markerH+mainBoxSide/2);
   rotate(-90);
 
   // noStroke();
@@ -207,7 +214,7 @@ function draw() {
   mainColor.setAlpha(255);
   fill(mainColor);
   textStyle(NORMAL);
-  text(talName, markerW+mainBoxSide/2, height/2);
+  text(talName, markerW+mainBoxSide/2, markerH+mainBoxSide/2);
 
   textAlign(LEFT, BOTTOM);
   textSize(12);
@@ -232,10 +239,12 @@ function start () {
   }
   loaded = false;
   paused = true;
+  currentTime = 0;
   talBoxes = [];
   talSet = [];
   talName = undefined;
   charger.angle = undefined;
+  mpmTxt = undefined;
   var index = select.value();
   recTal = recordingsInfo[recordingsList[index]];
   trackDuration = recTal.info.duration;
