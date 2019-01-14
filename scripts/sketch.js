@@ -94,6 +94,8 @@ function setup () {
   ellipseMode(RADIUS);
   angleMode(DEGREES);
   imageMode(CENTER);
+  textFont("Laila");
+  strokeJoin(ROUND);
   //style
   radiusBig = mainBoxSide * (0.3);
   navBoxY = height-navBoxH-navBoxX;
@@ -403,20 +405,24 @@ function StrokeCircle (matra, vibhag, circleType, bol, avart) {
   }
 
   if (circleType == "sam") {
-    this.radius = radius1;
+    this.radius = radius1*1.2;
+    this.txtSize = radius1 * 0.7;
     this.txtStyle = BOLD;
     this.bol = this.bol.toUpperCase();
     this.volume = 1;
   } else if (circleType == 1) {
     this.radius = radius1;
+    this.txtSize = radius1 * 0.75;
     this.txtStyle = BOLD;
     this.volume = 1;
   } else if (circleType == 2){
     this.radius = radius2;
+    this.txtSize = radius2 * 0.75;
     this.txtStyle = NORMAL;
     this.volume = 0.7;
   } else {
     this.radius = radius2;
+    this.txtSize = radius2 * 0.75;
     this.col = color(0, 0);
     this.txtStyle = NORMAL;
     this.strokeWeight = 0;
@@ -440,7 +446,7 @@ function StrokeCircle (matra, vibhag, circleType, bol, avart) {
       textAlign(CENTER, CENTER);
       noStroke();
       fill(0);
-      textSize(this.radius * 0.75);
+      textSize(this.txtSize);
       textStyle(this.txtStyle);
       rotate(90);
       text(this.bol, 0, 0);
@@ -561,7 +567,7 @@ function CreateNavCursor () {
 
 function CreateTalBox (name, start, end) {
   this.name = name
-  this.h = 20;
+  this.h = 25;
   this.x1 = map(start, 0, trackDuration, navBox.x1+navCursorW/2, navBox.x2-navCursorW/2);
   this.x2 = map(end, 0, trackDuration, navBox.x1+navCursorW/2, navBox.x2-navCursorW/2);
   this.w = this.x2-this.x1;
@@ -603,7 +609,7 @@ function CreateTalBox (name, start, end) {
     fill(this.boxCol);
     noStroke();
     rect(this.x1, navBoxY, this.w, this.h);
-    textAlign(LEFT, CENTER);
+    textAlign(LEFT, BOTTOM);
     textSize(this.h * 0.7);
     fill(this.txtCol);
     textStyle(this.txtStyle);
@@ -611,7 +617,7 @@ function CreateTalBox (name, start, end) {
     mainColor.setAlpha(255);
     stroke(mainColor);
     strokeWeight(this.txtBorder);
-    text(this.name, this.x1+2, navBoxY + this.h/2);
+    text(this.name, this.x1+2, navBoxY + this.h*0.92);
   }
 }
 
