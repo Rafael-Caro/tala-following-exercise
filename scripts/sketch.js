@@ -130,7 +130,7 @@ function setup () {
   for (var i = 0; i < recordingsList.length; i++) {
     select.option(recordingsInfo[recordingsList[i]].info.option, i);
   }
-  showTheka = createCheckbox('theka (x2)', true)
+  showTheka = createCheckbox('ṭhekā (x2)', true)
     .position(markerW+navBoxX, markerH+mainBoxSide*0.2)
     .parent("sketch-holder");
   showCursor = createCheckbox('cursor (x3)', true)
