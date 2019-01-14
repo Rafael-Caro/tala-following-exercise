@@ -3,6 +3,7 @@ var talInfo;
 var recordingsInfo;
 var recordingsList;
 var recTal;
+var failedLoading = false;
 var mainBoxSide = 600;
 var markerW = 0;
 var markerH = 60;
@@ -190,6 +191,15 @@ function draw () {
 
   push();
   translate(markerW+mainBoxSide/2, markerH+mainBoxSide/2);
+
+  if (failedLoading) {
+    textAlign(CENTER, CENTER);
+    textSize(15)
+    noStroke()
+    fill(0)
+    text("Ha habido un problema cargando el audio\nPor favor, vuelve a cargar la página", 0, 0);
+  }
+
   rotate(-90);
 
   // noStroke();
@@ -757,7 +767,7 @@ function player () {
     }
   } else {
     initLoading = millis();
-    track = loadSound("tracks/" + trackFile, soundLoaded, function(){print("loading failed")}, loading);
+    track = loadSound("tracks/" + trackFile, soundLoaded, failedLoad, loading);
     charger.angle = 0;
   }
 }
@@ -779,6 +789,12 @@ function soundLoaded () {
 function loading () {
   button.html("Cargando...");
   button.attribute("disabled", "");
+}
+
+function failedLoad () {
+  print("Loading failed");
+  failedLoading =true;
+  charger.angle = undefined;
 }
 
 function updateSam () {
