@@ -318,10 +318,13 @@ function start () {
   clock = new CreateClock();
   showTheka.attribute("disabled", "true");
   showTheka.attribute("style", "color:rgba(0, 0, 0, 0.4);");
+  showTheka.checked("true");
   showCursor.attribute("disabled", "true");
   showCursor.attribute("style", "color:rgba(0, 0, 0, 0.4);");
+  showCursor.checked("true");
   showTal.attribute("disabled", "true");
   showTal.attribute("style", "color:rgba(0, 0, 0, 0.4);");
+  showTal.checked("true");
   button.html("Carga el audio");
   button.removeAttribute("disabled");
 }
