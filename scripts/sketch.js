@@ -5,11 +5,13 @@ var recordingsList;
 var recTal;
 var mainBoxSide = 600;
 var markerW = 0;
-var markerH = 50;
-var attempts = 0;
+var markerH = 60;
 var attemptsBox;
-var score = 0;
+var hitsBox;
 var scoreBox;
+var attempts = 0;
+var hits = 0;
+var score = 0;
 var samIndex = 0;
 var goalIndex = 0;
 var allSam = [];
@@ -127,13 +129,13 @@ function setup () {
   for (var i = 0; i < recordingsList.length; i++) {
     select.option(recordingsInfo[recordingsList[i]].info.option, i);
   }
-  showTheka = createCheckbox('theka', true)
+  showTheka = createCheckbox('theka (x2)', true)
     .position(markerW+navBoxX, markerH+mainBoxSide*0.2)
     .parent("sketch-holder");
-  showCursor = createCheckbox('cursor', true)
+  showCursor = createCheckbox('cursor (x3)', true)
     .position(markerW+navBoxX, showTheka.position()["y"]+showTheka.height+navBoxX/2)
     .parent("sketch-holder");
-  showTal = createCheckbox('tāl', true)
+  showTal = createCheckbox('tāl (x3)', true)
     .position(markerW+navBoxX, showCursor.position()["y"]+showCursor.height+navBoxX/2)
     .changed(function() {
       showTheka.checked(showTal.checked());
@@ -145,8 +147,9 @@ function setup () {
   showCursor.attribute("style", "color:rgba(0, 0, 0, 0.4);");
   showTal.attribute("disabled", "true");
   showTal.attribute("style", "color:rgba(0, 0, 0, 0.4);");
-  scoreBox = new CreateScoreBox(markerH + 200);
-  attemptsBox = new CreateScoreBox(scoreBox.x + scoreBox.w + navBoxX/2);
+  attemptsBox = new CreateScoreBox(markerH + 150, "Intentos", color(0), NORMAL);
+  hitsBox = new CreateScoreBox(attemptsBox.x + attemptsBox.w + navBoxX*2, "Aciertos", color(0), NORMAL);
+  scoreBox = new CreateScoreBox(hitsBox.x + hitsBox.w + navBoxX*2, "Puntos", mainColor, BOLD); //color(52, 152, 219)
   charger = new CreateCharger();
   cursor = new CreateCursor();
   navBox = new CreateNavigationBox();
@@ -157,8 +160,9 @@ function draw () {
   fill(backColor);
   rect(markerW, markerH, mainBoxSide, height);
 
-  scoreBox.display(score);
   attemptsBox.display(attempts);
+  hitsBox.display(hits);
+  scoreBox.display(score);
 
   stroke(0, 50);
   strokeWeight(1);
@@ -441,22 +445,27 @@ function StrokeCircle (matra, vibhag, circleType, bol, avart) {
   }
 }
 
-function CreateScoreBox (x) {
+function CreateScoreBox (x, title, col, style) {
   this.x = x;
-  this.y = navBoxX;
-  this.w = 50;
   this.h = 20;
+  this.y = navBoxX+this.h;
+  this.w = 50;
+  this.title = title;
+  this.col = col;
+  this.style = style;
   this.display = function(txt) {
-    this.score =
+    textAlign(RIGHT, TOP);
+    fill(0);
+    noStroke();
+    textStyle(this.style);
+    textSize(this.h * 0.75);
+    text(this.title, this.x+this.w, navBoxX);
     fill(255);
     stroke(150);
     strokeWeight(1);
     rect(this.x, this.y, this.w, this.h);
-    textAlign(RIGHT, TOP);
-    fill(0);
-    textSize(this.h * 0.75);
+    fill(this.col);
     noStroke();
-    textStyle(NORMAL);
     text(txt, this.x+this.w-3, this.y+this.h * 0.2);
   }
 }
@@ -816,10 +825,20 @@ function findClosestSam () {
 }
 
 function grader () {
-  var dist = abs(currentTime - allSam[goalIndex]);
-  print(currentTime.toFixed(2), allSam[goalIndex].toFixed(2), dist.toFixed(2));
-  if (dist <= 0.1) {
-    score++;
+  var dist = currentTime - allSam[goalIndex];
+  if (abs(dist) <= 0.1) {
+    hits++;
+    var points = 1;
+    if (!showTheka.checked()) {
+      points *= 2;
+    }
+    if (!showCursor.checked()) {
+      points *= 3;
+    }
+    if (!showTal.checked()) {
+      points *= 3;
+    }
+    score += points;
   }
 }
 
